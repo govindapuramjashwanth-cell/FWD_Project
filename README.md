@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,14 +6,11 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-
 body{
 font-family:Arial;
 margin:0;
 background:#f5f7fb;
 }
-
-/* HEADER */
 
 header{
 background:#0b5ed7;
@@ -21,8 +19,6 @@ padding:15px;
 text-align:center;
 font-size:22px;
 }
-
-/* NAVBAR */
 
 nav{
 background:#083b8a;
@@ -42,8 +38,6 @@ nav button:hover{
 background:#0b5ed7;
 }
 
-/* SECTIONS */
-
 section{
 display:none;
 padding:20px;
@@ -53,8 +47,6 @@ section.active{
 display:block;
 }
 
-/* CARD */
-
 .card{
 background:white;
 padding:20px;
@@ -63,8 +55,6 @@ margin-bottom:20px;
 box-shadow:0 2px 8px rgba(0,0,0,.1);
 }
 
-/* INPUTS */
-
 input,select,textarea{
 width:100%;
 padding:10px;
@@ -72,8 +62,6 @@ margin:8px 0;
 border-radius:6px;
 border:1px solid #ccc;
 }
-
-/* BUTTON */
 
 button.primary{
 background:#0b5ed7;
@@ -84,15 +72,12 @@ cursor:pointer;
 border-radius:6px;
 }
 
-/* LOGIN CENTER */
-
 .center{
 display:flex;
 justify-content:center;
 align-items:center;
 height:100vh;
 }
-
 </style>
 </head>
 
@@ -101,7 +86,6 @@ height:100vh;
 <!-- LOGIN PAGE -->
 
 <div id="loginPage" class="center">
-
 <div class="card" style="width:300px">
 
 <h2>Login</h2>
@@ -114,9 +98,7 @@ height:100vh;
 <p id="loginError" style="color:red"></p>
 
 </div>
-
 </div>
-
 
 
 <!-- MAIN SYSTEM -->
@@ -126,12 +108,10 @@ height:100vh;
 <header>Hospital Patient Feedback System</header>
 
 <nav>
-
 <button onclick="openTab('dashboard')">Dashboard</button>
 <button onclick="openTab('feedback')">Feedback Form</button>
 <button onclick="openTab('reviews')">Reviews</button>
 <button onclick="logout()">Logout</button>
-
 </nav>
 
 
@@ -140,22 +120,16 @@ height:100vh;
 <section id="dashboard" class="active">
 
 <div class="card">
-
 <h3>Statistics</h3>
-
 <p>Total Feedback: <span id="total">0</span></p>
 <p>Average Rating: <span id="avg">0</span></p>
-
 </div>
 
 <div class="card">
-
 <canvas id="chart"></canvas>
-
 </div>
 
 </section>
-
 
 
 <!-- FEEDBACK FORM -->
@@ -169,32 +143,27 @@ height:100vh;
 <input id="name" placeholder="Patient Name">
 
 <select id="dept">
-
 <option>General</option>
 <option>Emergency</option>
 <option>Pharmacy</option>
 <option>Billing</option>
-
 </select>
 
 <select id="rating">
-
 <option value="5">Excellent</option>
 <option value="4">Good</option>
 <option value="3">Average</option>
 <option value="2">Poor</option>
 <option value="1">Very Poor</option>
-
 </select>
 
 <textarea id="comment" placeholder="Comments"></textarea>
 
-<button class="primary" onclick="addFeedback()">Submit Feedback</button>
+<button class="primary" type="button" onclick="addFeedback()">Submit Feedback</button>
 
 </div>
 
 </section>
-
 
 
 <!-- REVIEWS -->
@@ -202,11 +171,8 @@ height:100vh;
 <section id="reviews">
 
 <div class="card">
-
 <h3>Patient Reviews</h3>
-
 <ul id="reviewList"></ul>
-
 </div>
 
 </section>
@@ -214,82 +180,111 @@ height:100vh;
 </div>
 
 
-
 <script>
+
+/* GLOBAL VARIABLES */
+
+let feedbackList = [];
+
 
 /* LOGIN */
 
 function login(){
 
-if(username.value=="admin" && password.value=="1234"){
+let user=document.getElementById("username").value;
+let pass=document.getElementById("password").value;
 
-loginPage.style.display="none";
-mainSystem.style.display="block";
+if(user==="admin" && pass==="1234"){
+
+document.getElementById("loginPage").style.display="none";
+document.getElementById("mainSystem").style.display="block";
+
+loadFeedback();
 
 }else{
 
-loginError.textContent="Invalid login";
+document.getElementById("loginError").textContent="Invalid login";
 
 }
 
 }
 
 function logout(){
-
 location.reload();
-
 }
-
 
 
 /* NAVIGATION */
 
 function openTab(id){
 
-document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+document.querySelectorAll("section").forEach(sec=>{
+sec.classList.remove("active");
+});
 
 document.getElementById(id).classList.add("active");
 
 }
 
 
-
-/* FEEDBACK STORAGE */
-
-let feedbackList=[];
-
-
-
 /* ADD FEEDBACK */
 
 function addFeedback(){
 
-if(!name.value.trim()){
+let name=document.getElementById("name").value.trim();
+let dept=document.getElementById("dept").value;
+let rating=Number(document.getElementById("rating").value);
+let comment=document.getElementById("comment").value.trim();
 
+if(name===""){
 alert("Enter patient name");
 return;
+}
 
+if(comment===""){
+comment="No comment";
 }
 
 let obj={
-
-name:name.value,
-dept:dept.value,
-rating:Number(rating.value),
-comment:comment.value || "No comment"
-
+name:name,
+dept:dept,
+rating:rating,
+comment:comment
 };
 
 feedbackList.push(obj);
 
+/* SAVE TO LOCAL STORAGE */
+
+localStorage.setItem("hospital_feedback", JSON.stringify(feedbackList));
+
 updateDashboard();
 renderReviews();
 
-name.value="";
-comment.value="";
+/* CLEAR FORM */
+
+document.getElementById("name").value="";
+document.getElementById("comment").value="";
+
+alert("Feedback submitted successfully!");
 
 }
 
+
+/* LOAD SAVED DATA */
+
+function loadFeedback(){
+
+let data=localStorage.getItem("hospital_feedback");
+
+if(data){
+feedbackList=JSON.parse(data);
+}
+
+updateDashboard();
+renderReviews();
+
+}
 
 
 /* DASHBOARD */
@@ -297,14 +292,14 @@ comment.value="";
 function updateDashboard(){
 
 let total=feedbackList.length;
-
 document.getElementById("total").textContent=total;
 
 let avg=0;
 
 if(total>0){
 
-avg=(feedbackList.reduce((a,b)=>a+b.rating,0)/total).toFixed(2);
+let sum=feedbackList.reduce((a,b)=>a+b.rating,0);
+avg=(sum/total).toFixed(2);
 
 }
 
@@ -315,65 +310,60 @@ updateChart();
 }
 
 
-
 /* REVIEWS */
 
 function renderReviews(){
 
-reviewList.innerHTML="";
+let list=document.getElementById("reviewList");
+list.innerHTML="";
 
 feedbackList.slice().reverse().forEach(f=>{
 
 let li=document.createElement("li");
 
-li.textContent=f.name+" ("+f.dept+") : "+f.rating+"★ - "+f.comment;
+li.textContent=
+f.name+" ("+f.dept+") : "+f.rating+"★ - "+f.comment;
 
-reviewList.appendChild(li);
+list.appendChild(li);
 
 });
 
 }
 
 
-
 /* CHART */
 
-let chart=new Chart(
+let chart;
 
+window.onload=function(){
+
+chart=new Chart(
 document.getElementById("chart"),
-
 {
-
 type:"bar",
-
 data:{
-
 labels:["1","2","3","4","5"],
-
 datasets:[{
-
 label:"Ratings",
-
 data:[0,0,0,0,0]
-
 }]
-
 }
-
 }
-
 );
 
+};
 
+
+/* UPDATE CHART */
 
 function updateChart(){
+
+if(!chart) return;
 
 let counts=[0,0,0,0,0];
 
 feedbackList.forEach(f=>{
-
 counts[f.rating-1]++;
-
 });
 
 chart.data.datasets[0].data=counts;
@@ -386,3 +376,4 @@ chart.update();
 
 </body>
 </html>
+```
